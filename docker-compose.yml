@@ -1,0 +1,84 @@
+services:
+  # ------------------------------------------------------------
+  # 1. API Gateway (Nginx)
+  # Acts as the single entry point.
+  # Routes /api/* -> core-api and /* -> frontend
+  # ------------------------------------------------------------
+  gateway:
+    image: nginx:alpine
+    container_name: hive-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - core-api
+      - frontend
+
+  # ------------------------------------------------------------
+  # 2. Frontend (React + Vite)
+  # ------------------------------------------------------------
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+    container_name: hive-frontend
+    ports:
+      - "3000:80"
+
+  # ------------------------------------------------------------
+  # 3. Core API (Spring Boot - Kotlin)
+  # Uses the multi-stage Dockerfile you provided
+  # ------------------------------------------------------------
+  core-api:
+    build:
+      context: ./services/core-api
+      dockerfile: Dockerfile
+    container_name: hive-core-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      core-db:
+        condition: service_healthy
+    environment:
+      # Use 'prod' to match your backend config
+      SPRING_PROFILES_ACTIVE: prod
+
+      # DATABASE CONFIG
+      # Note: We use the service name 'core-db' as the hostname
+      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/eventhive
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+      # SECURITY & JWT
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+
+      # MAIL SERVER
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+  # ------------------------------------------------------------
+  # 4. Core Database (PostgreSQL)
+  # ------------------------------------------------------------
+  core-db:
+    image: postgres:17.7-alpine
+    container_name: hive-core-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: eventhive
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d eventhive"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
