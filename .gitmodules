@@ -1,0 +1,6 @@
+[submodule "services/core-api"]
+	path = services/core-api
+	url = https://github.com/Naveen2070/EventHive.git
+[submodule "services/frontend"]
+	path = services/frontend
+	url = https://github.com/Naveen2070/EventHive-UI.git
