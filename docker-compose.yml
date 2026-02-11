@@ -50,7 +50,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       # DATABASE CONFIG
-      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/eventhive
+      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/event
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       # SECURITY & JWT
@@ -73,13 +73,62 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: eventhive
+      POSTGRES_DB: event
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d eventhive"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d event"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hive-network
+
+  # ------------------------------------------------------------
+  # 5. Identity Service (Spring Boot)
+  # ------------------------------------------------------------
+  identity-service:
+    build:
+      context: ./services/identity-service
+      dockerfile: Dockerfile
+    container_name: hive-identity
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      FRONTEND_URL: http://localhost
+    depends_on:
+      identity-db:
+        condition: service_healthy
+    networks:
+      - hive-network
+
+  # ------------------------------------------------------------
+  # 6. Identity Database (PostgreSQL)
+  # ------------------------------------------------------------
+  identity-db:
+    image: postgres:17.7-alpine
+    container_name: hive-identity-db
+    ports:
+      - "5433:5432" # Maps to Host 5433 (Keep 5432 free for Core DB)
+    environment:
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - identity_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d identity_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -93,3 +142,4 @@ networks:
 
 volumes:
   postgres_data:
+  identity_postgres_data:
