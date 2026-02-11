@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   # ------------------------------------------------------------
   # 1. API Gateway (Nginx)
@@ -14,9 +16,12 @@ services:
     depends_on:
       - core-api
       - frontend
+    networks:
+      - hive-network
 
   # ------------------------------------------------------------
   # 2. Frontend (React + Vite)
+  # Updated for Multi-Stage Build (Nginx)
   # ------------------------------------------------------------
   frontend:
     build:
@@ -24,11 +29,13 @@ services:
       dockerfile: Dockerfile
     container_name: hive-frontend
     ports:
-      - "3000:80"
+      - "3000:80" # Map Host 3000 -> Container 80 (Nginx default)
+    restart: always
+    networks:
+      - hive-network
 
   # ------------------------------------------------------------
   # 3. Core API (Spring Boot - Kotlin)
-  # Uses the multi-stage Dockerfile you provided
   # ------------------------------------------------------------
   core-api:
     build:
@@ -42,21 +49,20 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
-
       # DATABASE CONFIG
       SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/eventhive
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-
       # SECURITY & JWT
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
-
       # MAIL SERVER
       MAIL_HOST: ${MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+    networks:
+      - hive-network
 
   # ------------------------------------------------------------
   # 4. Core Database (PostgreSQL)
@@ -77,6 +83,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - hive-network
+
+# Define a shared network so services can talk to each other
+networks:
+  hive-network:
+    driver: bridge
 
 volumes:
   postgres_data:
