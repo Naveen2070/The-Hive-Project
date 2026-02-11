@@ -7,7 +7,7 @@ services:
   # Routes /api/* -> core-api and /* -> frontend
   # ------------------------------------------------------------
   gateway:
-    image: nginx:alpine
+    image: nginx:alpine3.23-slim
     container_name: hive-gateway
     ports:
       - "80:80"
