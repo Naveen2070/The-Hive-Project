@@ -41,11 +41,9 @@ services:
       core-db:
         condition: service_healthy
     environment:
-      # Use 'prod' to match your backend config
       SPRING_PROFILES_ACTIVE: prod
 
       # DATABASE CONFIG
-      # Note: We use the service name 'core-db' as the hostname
       SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/eventhive
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
