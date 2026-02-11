@@ -9,3 +9,4 @@
 [submodule "services/identity-service"]
 	path = services/identity-service
 	url = https://github.com/Naveen2070/Hive-Identity.git
+	branch = main
