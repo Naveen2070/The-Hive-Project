@@ -1,10 +1,7 @@
-version: "3.8"
-
 services:
   # ------------------------------------------------------------
   # 1. API Gateway (Nginx)
-  # Acts as the single entry point.
-  # Routes /api/* -> core-api and /* -> frontend
+  # THE ONLY PUBLIC ENTRY POINT
   # ------------------------------------------------------------
   gateway:
     image: nginx:alpine3.23-slim
@@ -16,20 +13,20 @@ services:
     depends_on:
       - core-api
       - frontend
+      - identity-service
     networks:
       - hive-network
 
   # ------------------------------------------------------------
   # 2. Frontend (React + Vite)
-  # Updated for Multi-Stage Build (Nginx)
   # ------------------------------------------------------------
   frontend:
     build:
       context: ./services/frontend
       dockerfile: Dockerfile
     container_name: hive-frontend
-    ports:
-      - "3000:80" # Map Host 3000 -> Container 80 (Nginx default)
+    expose:
+      - "80"
     restart: always
     networks:
       - hive-network
@@ -42,15 +39,15 @@ services:
       context: ./services/core-api
       dockerfile: Dockerfile
     container_name: hive-core-api
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     depends_on:
       core-db:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
       # DATABASE CONFIG
-      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/event
+      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/event_db
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       # SECURITY & JWT
@@ -70,16 +67,16 @@ services:
   core-db:
     image: postgres:17.7-alpine
     container_name: hive-core-db
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     environment:
-      POSTGRES_DB: event
+      POSTGRES_DB: event_db
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d event"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d event_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -94,8 +91,8 @@ services:
       context: ./services/identity-service
       dockerfile: Dockerfile
     container_name: hive-identity
-    ports:
-      - "8081:8081"
+    expose:
+      - "8081"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_USERNAME: ${DB_USERNAME}
@@ -119,8 +116,8 @@ services:
   identity-db:
     image: postgres:17.7-alpine
     container_name: hive-identity-db
-    ports:
-      - "5433:5432" # Maps to Host 5433 (Keep 5432 free for Core DB)
+    expose:
+      - "5432"
     environment:
       POSTGRES_DB: identity_db
       POSTGRES_USER: ${DB_USERNAME}
@@ -135,11 +132,12 @@ services:
     networks:
       - hive-network
 
-# Define a shared network so services can talk to each other
+# Shared Network
 networks:
   hive-network:
     driver: bridge
 
+# Volumes
 volumes:
   postgres_data:
   identity_postgres_data:
