@@ -1,10 +1,9 @@
 services:
   # ------------------------------------------------------------
   # 1. API Gateway (Nginx)
-  # THE ONLY PUBLIC ENTRY POINT
   # ------------------------------------------------------------
   gateway:
-    image: nginx:alpine3.23-slim
+    image: nginx:alpine
     container_name: hive-gateway
     ports:
       - "80:80"
@@ -12,27 +11,25 @@ services:
       - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - core-api
-      - frontend
       - identity-service
+      - frontend
     networks:
       - hive-network
 
   # ------------------------------------------------------------
-  # 2. Frontend (React + Vite)
+  # 2. Frontend (React)
   # ------------------------------------------------------------
   frontend:
     build:
       context: ./services/frontend
       dockerfile: Dockerfile
     container_name: hive-frontend
-    expose:
-      - "80"
     restart: always
     networks:
       - hive-network
 
   # ------------------------------------------------------------
-  # 3. Core API (Spring Boot - Kotlin)
+  # 3. Core API
   # ------------------------------------------------------------
   core-api:
     build:
@@ -46,29 +43,51 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      # DATABASE CONFIG
       SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/event_db
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      # SECURITY & JWT
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
-      # MAIL SERVER
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT}
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      FRONTEND_URL: http://localhost
     networks:
       - hive-network
 
   # ------------------------------------------------------------
-  # 4. Core Database (PostgreSQL)
+  # 4. Identity Service
+  # ------------------------------------------------------------
+  identity-service:
+    build:
+      context: ./services/identity-service
+      dockerfile: Dockerfile
+    container_name: hive-identity
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+      RABBITMQ_HOST: hive-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: /
+      FRONTEND_URL: http://localhost
+    depends_on:
+      identity-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hive-network
+
+  # ------------------------------------------------------------
+  # Databases
   # ------------------------------------------------------------
   core-db:
-    image: postgres:17.7-alpine
+    image: postgres:17-alpine
     container_name: hive-core-db
-    expose:
-      - "5432"
     environment:
       POSTGRES_DB: event_db
       POSTGRES_USER: ${DB_USERNAME}
@@ -78,46 +97,13 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d event_db"]
       interval: 5s
-      timeout: 5s
       retries: 5
     networks:
       - hive-network
 
-  # ------------------------------------------------------------
-  # 5. Identity Service (Spring Boot)
-  # ------------------------------------------------------------
-  identity-service:
-    build:
-      context: ./services/identity-service
-      dockerfile: Dockerfile
-    container_name: hive-identity
-    expose:
-      - "8081"
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT}
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      FRONTEND_URL: http://localhost
-    depends_on:
-      identity-db:
-        condition: service_healthy
-    networks:
-      - hive-network
-
-  # ------------------------------------------------------------
-  # 6. Identity Database (PostgreSQL)
-  # ------------------------------------------------------------
   identity-db:
-    image: postgres:17.7-alpine
+    image: postgres:17-alpine
     container_name: hive-identity-db
-    expose:
-      - "5432"
     environment:
       POSTGRES_DB: identity_db
       POSTGRES_USER: ${DB_USERNAME}
@@ -127,17 +113,34 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d identity_db"]
       interval: 5s
+      retries: 5
+    networks:
+      - hive-network
+
+  # ------------------------------------------------------------
+  # Message Broker (RabbitMQ)
+  # ------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: hive-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15673"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - hive-network
 
-# Shared Network
 networks:
   hive-network:
     driver: bridge
 
-# Volumes
 volumes:
   postgres_data:
   identity_postgres_data:
