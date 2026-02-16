@@ -3,7 +3,7 @@ services:
   # 1. API Gateway (Nginx)
   # ------------------------------------------------------------
   gateway:
-    image: nginx:alpine
+    image: nginx:alpine3.23-slim
     container_name: hive-gateway
     ports:
       - "80:80"
@@ -48,6 +48,15 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      RABBITMQ_HOST: hive-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: /
       FRONTEND_URL: http://localhost
     networks:
       - hive-network
@@ -86,7 +95,7 @@ services:
   # Databases
   # ------------------------------------------------------------
   core-db:
-    image: postgres:17-alpine
+    image: postgres:17.7-alpine
     container_name: hive-core-db
     environment:
       POSTGRES_DB: event_db
@@ -102,7 +111,7 @@ services:
       - hive-network
 
   identity-db:
-    image: postgres:17-alpine
+    image: postgres:17.7-alpine
     container_name: hive-identity-db
     environment:
       POSTGRES_DB: identity_db
@@ -121,11 +130,11 @@ services:
   # Message Broker (RabbitMQ)
   # ------------------------------------------------------------
   rabbitmq:
-    image: rabbitmq:3.12-management-alpine
+    image: rabbitmq:4.2.3-management-alpine
     container_name: hive-rabbitmq
     ports:
       - "5672:5672"
-      - "15672:15673"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
