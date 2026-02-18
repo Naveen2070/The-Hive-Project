@@ -57,7 +57,8 @@ services:
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       RABBITMQ_VHOST: /
-      FRONTEND_URL: http://localhost
+      INTERNAL_SHARED_SECRET: ${INTERNAL_SHARED_SECRET}
+      IDENTITY_SERVICE_URL: http://identity-service:8081
     networks:
       - hive-network
 
@@ -82,7 +83,7 @@ services:
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       RABBITMQ_VHOST: /
-      FRONTEND_URL: http://localhost
+      INTERNAL_SHARED_SECRET: ${INTERNAL_SHARED_SECRET}
     depends_on:
       identity-db:
         condition: service_healthy
