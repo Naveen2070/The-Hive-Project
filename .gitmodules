@@ -6,3 +6,7 @@
 	path = services/frontend
 	url = https://github.com/Naveen2070/EventHive-UI.git
 	branch = main
+[submodule "services/identity-service"]
+	path = services/identity-service
+	url = https://github.com/Naveen2070/Hive-Identity.git
+	branch = main
