@@ -12,16 +12,16 @@
 
 ## 🏗️ System Architecture
 
-The ecosystem is currently orchestrated via **Docker Compose**, with an **Nginx API Gateway** handling routing. As the system scales, a dedicated Service Registry will be introduced to handle dynamic service discovery.
+The ecosystem is currently orchestrated via **Docker Compose**, with an **Nginx API Gateway** handling routing and **RabbitMQ** handling asynchronous event-driven communication between microservices.
 
 - **Gateway:** Nginx (Reverse Proxy)
-- **Identity Provider:** Spring Boot 3 (Standalone IAM Service)
-- **Events Engine:** Spring Boot 3 (Kotlin)
+- **Identity Provider:** Spring Boot 3 / Kotlin (Standalone IAM Service)
+- **Events Engine:** Spring Boot 3 / Kotlin (Core API)
+- **Message Broker:** RabbitMQ (Async Notifications)
 - **Frontend:** React (Vite + TypeScript)
 - **Movies (Planned):** .NET 8 (C#)
 - **Streaming (Planned):** NestJS (Node.js)
-
-* **Service Discovery (Planned):** Evaluating Netflix Eureka, Consul, or Kubernetes DNS.
+- **Service Discovery (Planned):** Evaluating Netflix Eureka, Consul, or Kubernetes DNS.
 
 ---
 
@@ -29,15 +29,15 @@ The ecosystem is currently orchestrated via **Docker Compose**, with an **Nginx 
 
 This repository acts as the **Central Hub**, orchestrating the following independent microservices:
 
-| Service Domain        | Tech Stack                                      | Repository & Docs                                              |
-| :-------------------- | :---------------------------------------------- | :------------------------------------------------------------- |
-| **User Interface**    | **React**, TypeScript, Tailwind, TanStack Query | [**EventHive-UI**](https://github.com/Naveen2070/EventHive-UI) |
-| **Core API** (Events) | **Kotlin**, Spring Boot 3, PostgreSQL           | [**EventHive-Core**](https://github.com/Naveen2070/EventHive)  |
-| **Identity Service**  | **Kotlin**, Spring Boot 3, Redis                | _Coming Soon_                                                  |
-| **Movies API**        | **C#**, .NET 8, SQL Server                      | _Coming Soon_                                                  |
-| **Streaming Engine**  | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                  |
+| Service Domain        | Tech Stack                                      | Repository & Docs                                                    |
+| :-------------------- | :---------------------------------------------- | :------------------------------------------------------------------- |
+| **User Interface**    | **React**, TypeScript, Tailwind, TanStack Query | [**EventHive-UI**](https://github.com/Naveen2070/EventHive-UI)       |
+| **Core API** (Events) | **Kotlin**, Spring Boot 3, PostgreSQL, RabbitMQ | [**Hive-Event**](https://github.com/Naveen2070/EventHive)            |
+| **Identity Service**  | **Kotlin**, Spring Boot 3, PostgreSQL, RabbitMQ | [**Hive-Identity**](https://github.com/Naveen2070/Hive-Identity.git) |
+| **Movies API**        | **C#**, .NET 8, SQL Server                      | _Coming Soon_                                                        |
+| **Streaming Engine**  | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                        |
 
-> **Note:** The **Core API** and **Identity Service** are the core components of the **EventHive** ecosystem. They serve as the foundation for the entire platform.
+> **Note:** The **Core API** and **Identity Service** are the foundation of the **EventHive** ecosystem. They use an industrial-grade **HMAC-SHA256** signature verification process for secure Machine-to-Machine (S2S) communication.
 
 ---
 
@@ -47,15 +47,15 @@ Since this project uses **Git Submodules**, a standard clone will not work. Foll
 
 ### Prerequisites
 
-- **Docker Desktop** (Running)
+- **Docker & Docker Compose** (Running)
 - **Git**
 
 ### 1. Clone with Submodules
 
-You must use the `--recurse-submodules` flag to pull the code for the backend and frontend.
+You must use the `--recurse-submodules` flag to pull the code for the backend and frontend simultaneously.
 
 ```bash
-git clone --recurse-submodules https://github.com/Naveen2070/The-Hive-Project.git
+git clone --recurse-submodules [https://github.com/Naveen2070/The-Hive-Project.git](https://github.com/Naveen2070/The-Hive-Project.git)
 cd The-Hive-Project
 ```
 
@@ -63,18 +63,28 @@ _Already cloned without the flag? Run `git submodule update --init --recursive` 
 
 ### 2. Configure Environment
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory. This configures the databases, security layers, and message brokers across all containers:
 
 ```ini
-# Database
+# Database (Shared credentials for independent DBs)
 DB_USERNAME=admin
 DB_PASSWORD=password
 
-# Security
+# JWT Security
 JWT_SECRET=replace_this_with_a_very_long_secure_secret_key
 JWT_EXPIRATION_MS=86400000
 
-# Email (Optional for Local)
+# Zero-Trust S2S Security
+INTERNAL_SHARED_SECRET=replace_this_with_a_secure_s2s_key
+
+# RabbitMQ Broker
+RABBITMQ_HOST=hive-rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USERNAME=guest
+RABBITMQ_PASSWORD=guest
+RABBITMQ_VHOST=/
+
+# Email (Optional for Local - Used by Identity Service)
 MAIL_HOST=smtp.mailtrap.io
 MAIL_PORT=587
 MAIL_USERNAME=guest
@@ -86,14 +96,15 @@ MAIL_PASSWORD=guest
 Run the orchestration script:
 
 ```bash
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 Access the services:
 
-- **Frontend UI:** [http://localhost](https://www.google.com/search?q=http://localhost) (Proxied via Port 80)
-- **Core API:** [http://localhost/api](https://www.google.com/search?q=http://localhost/api)
-- **API Docs (Swagger):** [http://localhost/api/swagger-ui.html](https://www.google.com/search?q=http://localhost/api/swagger-ui.html)
+- **Frontend UI:** `http://localhost` (Proxied via Nginx on Port 80)
+- **Core API (Events):** `http://localhost/api/events`
+- **Identity API (Auth):** `http://localhost/api/auth`
+- **RabbitMQ Dashboard:** `http://localhost:15672` (Login: guest/guest)
 
 ---
 
@@ -109,19 +120,19 @@ This project is evolving from a Monolith into a Distributed System using the **S
 - [x] **Frontend:** Responsive React UI with Dashboard and Wallet.
 - [x] **Infrastructure:** Nginx Gateway and Docker Compose orchestration.
 
-### 🚧 Phase 2: Identity Crisis (Current Focus)
+### ✅ Phase 2: Identity Crisis (Completed)
 
-- [ ] **Decomposition:** Extract Authentication & User Management from `EventHive-Core`.
-- [ ] **Standalone IAM:** Build a dedicated Spring Boot Identity Service.
-- [ ] **Gateway Auth:** Implement centralized JWT validation at the Gateway level.
-- [ ] **Session Sync:** Ensure seamless session sharing across potential future apps.
+- [x] **Decomposition:** Extract Authentication & User Management from `Hive-Event`.
+- [x] **Standalone IAM:** Build a dedicated Spring Boot Identity Service (`Hive-Identity`).
+- [x] **Zero-Trust Networking:** Implement timestamped HMAC-SHA256 signatures for S2S communication.
+- [x] **Event-Driven Upgrades:** Offload email notifications to RabbitMQ.
 
-### 🔮 Phase 3: The .NET Expansion
+### 🚧 Phase 3: The .NET Expansion (Current Focus)
 
 - [ ] **Microservice Setup:** Initialize .NET 8 Web API project.
 - [ ] **Movie Domain:** Schema design for Movies, Cinemas, and Showtimes.
 - [ ] **Seat Selection:** High-performance seat mapping engine using C# structs.
-- [ ] **Integration:** Connect .NET service to the ecosystem.
+- [ ] **Integration:** Connect .NET service to the Identity ecosystem.
 
 ### 🔌 Phase 4: Service Mesh & Discovery
 
@@ -145,11 +156,11 @@ This is a personal playground for experimenting (and breaking things!). 🧪
 
 **For my future self (and curious minds), here is the "Submodule Dance" to update the code:**
 
-1.  **📍 Navigate:** Go into the specific service folder first (e.g., `cd services/core-api`).
-2.  **🌿 Checkout:** Make sure I'm on the main branch (`git checkout main`).
-3.  **💾 Code & Push:** Commit changes _inside_ that folder and push to its specific repository.
-4.  **🔗 Sync the Hub:** Come back to this root folder, run `git add services/...` and `git commit` to update the submodule pointer.
+1. **📍 Navigate:** Go into the specific service folder first (e.g., `cd services/core-api`).
+2. **🌿 Checkout:** Make sure I'm on the main branch (`git checkout main`).
+3. **💾 Code & Push:** Commit changes _inside_ that folder and push to its specific repository.
+4. **🔗 Sync the Hub:** Come back to this root folder, run `git add services/...` and `git commit` to update the submodule pointer.
 
 ---
 
-**Architected with ❤️ by [Naveen](https://github.com/Naveen2070)**
+**Architected with ❤️ by [Naveen**](https://github.com/Naveen2070)
