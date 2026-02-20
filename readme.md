@@ -29,13 +29,13 @@ The ecosystem is currently orchestrated via **Docker Compose**, with an **Nginx 
 
 This repository acts as the **Central Hub**, orchestrating the following independent microservices:
 
-| Service Domain        | Tech Stack                                      | Repository & Docs                                              |
-| :-------------------- | :---------------------------------------------- | :------------------------------------------------------------- |
-| **User Interface**    | **React**, TypeScript, Tailwind, TanStack Query | [**EventHive-UI**](https://github.com/Naveen2070/EventHive-UI) |
-| **Core API** (Events) | **Kotlin**, Spring Boot 3, PostgreSQL           | [**EventHive-Core**](https://github.com/Naveen2070/EventHive)  |
-| **Identity Service**  | **Kotlin**, Spring Boot 3, Redis                | _Coming Soon_                                                  |
-| **Movies API**        | **C#**, .NET 8, SQL Server                      | _Coming Soon_                                                  |
-| **Streaming Engine**  | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                  |
+| Service Domain        | Tech Stack                                      | Repository & Docs                                                    |
+| :-------------------- | :---------------------------------------------- | :------------------------------------------------------------------- |
+| **User Interface**    | **React**, TypeScript, Tailwind, TanStack Query | [**EventHive-UI**](https://github.com/Naveen2070/EventHive-UI)       |
+| **Core API** (Events) | **Kotlin**, Spring Boot 3, PostgreSQL           | [**Hive-Event**](https://github.com/Naveen2070/EventHive)            |
+| **Identity Service**  | **Kotlin**, Spring Boot 3, Redis                | [**Hive-Identity**](https://github.com/Naveen2070/Hive-Identity.git) |
+| **Movies API**        | **C#**, .NET 8, SQL Server                      | _Coming Soon_                                                        |
+| **Streaming Engine**  | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                        |
 
 > **Note:** The **Core API** and **Identity Service** are the core components of the **EventHive** ecosystem. They serve as the foundation for the entire platform.
 
