@@ -10,3 +10,7 @@
 	path = services/identity-service
 	url = https://github.com/Naveen2070/Hive-Identity.git
 	branch = main
+[submodule "services/movie-service"]
+	path = services/movie-service
+	url = https://github.com/Naveen2070/Hive-Movie.git
+	branch = develop
