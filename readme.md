@@ -2,7 +2,7 @@
 
 > **A Polyglot Microservices Ecosystem for Events, Movies, and Streaming.**
 
-**The Hive Project** is an ambitious engineering initiative to build a complete entertainment platform using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the high-concurrency performance of **.NET 8**, the dynamic consumer interfaces of **React**, the complex data-handling of **Angular**, and the event-driven nature of **Node.js**.
+**The Hive Project** is an ambitious engineering initiative to build a complete entertainment platform using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the high-concurrency performance of **.NET 10**, the dynamic consumer interfaces of **React**, the complex data-handling of **Angular**, and the event-driven nature of **Node.js**.
 
 ## 🏗️ System Architecture
 
@@ -11,7 +11,7 @@ The ecosystem is orchestrated via **Docker Compose**, with an **Nginx API Gatewa
 - **Gateway:** Nginx (Reverse Proxy)
 - **Identity Provider:** Spring Boot 3 / Kotlin (Standalone IAM & S2S Auth)
 - **Events Engine:** Spring Boot 3 / Kotlin (Core API)
-- **Movies Engine:** .NET 8 / C# (High-Concurrency Seat Locking & Ticketing)
+- **Movies Engine:** .NET 10 / C# (High-Concurrency Seat Locking & Ticketing)
 - **Consumer Portal:** React (Vite + TypeScript)
 - **Admin Control Center (Planned):** Angular (TypeScript)
 - **Notification Engine (Planned):** NestJS (Node.js)
@@ -29,7 +29,7 @@ This repository acts as the **Central Hub**, orchestrating the following indepen
 | **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | _Coming Soon_                                                                                  |
 | **Core API** (Events)    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/EventHive)**                                      |
 | **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity.git)**                           |
-| **Movies API**           | **C#**, .NET 8, SQL Server                      | **[Hive-Movie](https://www.google.com/search?q=https://github.com/Naveen2070/Hive-Movie.git)** |
+| **Movies API**           | **C#**, .NET 10, SQL Server                      | **[Hive-Movie](https://www.google.com/search?q=https://github.com/Naveen2070/Hive-Movie.git)** |
 | **Notification Engine**  | **Node.js**, NestJS, RabbitMQ                   | _Coming Soon_                                                                                  |
 | **Streaming Engine**     | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                                                  |
 
@@ -115,7 +115,7 @@ This project is evolving from a Monolith into a Distributed System using the **S
 
 ### 🚧 Phase 3: The .NET Expansion (Backend Completed, UI Active)
 
-- [x] **Microservice Setup:** .NET 8 Web API with SQL Server and Testcontainers.
+- [x] **Microservice Setup:** .NET 10 Web API with SQL Server and Testcontainers.
 - [x] **Seat Engine:** High-performance seat locking via Optimistic Concurrency (RowVersion).
 - [x] **Reliability:** Implemented Transactional Outbox Pattern to guarantee RabbitMQ delivery.
 - [x] **Webhooks:** Idempotent Stripe/Razorpay payment confirmation endpoints.
