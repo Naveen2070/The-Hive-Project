@@ -1,10 +1,10 @@
 [submodule "services/core-api"]
 	path = services/core-api
-	url = https://github.com/Naveen2070/EventHive.git
+	url = https://github.com/Naveen2070/Hive-Event.git
 	branch = main
 [submodule "services/frontend"]
 	path = services/frontend
-	url = https://github.com/Naveen2070/EventHive-UI.git
+	url = https://github.com/Naveen2070/Hive-Forager-UI.git
 	branch = main
 [submodule "services/identity-service"]
 	path = services/identity-service
