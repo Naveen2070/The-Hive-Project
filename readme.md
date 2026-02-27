@@ -2,42 +2,38 @@
 
 > **A Polyglot Microservices Ecosystem for Events, Movies, and Streaming.**
 
-![Polyglot Architecture](https://img.shields.io/badge/Architecture-Microservices-blue)
-![Tech Stack](https://img.shields.io/badge/Tech-Kotlin_%7C_React_%7C_.NET_%7C_Node-orange)
-![Status](https://img.shields.io/badge/Status-Pet_Project-purple)
-
-**The Hive Project** is an ambitious engineering initiative to build a complete entertainment platform using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the performance of **.NET 8**, and the event-driven nature of **Node.js**.
-
----
+**The Hive Project** is an ambitious engineering initiative to build a complete entertainment platform using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the high-concurrency performance of **.NET 8**, the dynamic consumer interfaces of **React**, the complex data-handling of **Angular**, and the event-driven nature of **Node.js**.
 
 ## 🏗️ System Architecture
 
-The ecosystem is currently orchestrated via **Docker Compose**, with an **Nginx API Gateway** handling routing and **RabbitMQ** handling asynchronous event-driven communication between microservices.
+The ecosystem is orchestrated via **Docker Compose**, with an **Nginx API Gateway** handling routing and **RabbitMQ** powering asynchronous, event-driven communication (utilizing the Transactional Outbox Pattern).
 
 - **Gateway:** Nginx (Reverse Proxy)
-- **Identity Provider:** Spring Boot 3 / Kotlin (Standalone IAM Service)
+- **Identity Provider:** Spring Boot 3 / Kotlin (Standalone IAM & S2S Auth)
 - **Events Engine:** Spring Boot 3 / Kotlin (Core API)
-- **Message Broker:** RabbitMQ (Async Notifications)
-- **Frontend:** React (Vite + TypeScript)
-- **Movies (Planned):** .NET 8 (C#)
+- **Movies Engine:** .NET 8 / C# (High-Concurrency Seat Locking & Ticketing)
+- **Consumer Portal:** React (Vite + TypeScript)
+- **Admin Control Center (Planned):** Angular (TypeScript)
+- **Notification Engine (Planned):** NestJS (Node.js)
 - **Streaming (Planned):** NestJS (Node.js)
-- **Service Discovery (Planned):** Evaluating Netflix Eureka, Consul, or Kubernetes DNS.
 
 ---
 
 ## 📦 Service Ecosystem
 
-This repository acts as the **Central Hub**, orchestrating the following independent microservices:
+This repository acts as the **Central Hub**, orchestrating the following independent microservices via Git Submodules:
 
-| Service Domain        | Tech Stack                                      | Repository & Docs                                                    |
-| :-------------------- | :---------------------------------------------- | :------------------------------------------------------------------- |
-| **User Interface**    | **React**, TypeScript, Tailwind, TanStack Query | [**EventHive-UI**](https://github.com/Naveen2070/EventHive-UI)       |
-| **Core API** (Events) | **Kotlin**, Spring Boot 3, PostgreSQL, RabbitMQ | [**Hive-Event**](https://github.com/Naveen2070/EventHive)            |
-| **Identity Service**  | **Kotlin**, Spring Boot 3, PostgreSQL, RabbitMQ | [**Hive-Identity**](https://github.com/Naveen2070/Hive-Identity.git) |
-| **Movies API**        | **C#**, .NET 8, SQL Server                      | _Coming Soon_                                                        |
-| **Streaming Engine**  | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                        |
+| Service Domain           | Tech Stack                                      | Repository & Docs                                                                              |
+| ------------------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Consumer Portal**      | **React**, TypeScript, Tailwind, TanStack Query | **[EventHive-UI](https://github.com/Naveen2070/EventHive-UI)**                                 |
+| **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | _Coming Soon_                                                                                  |
+| **Core API** (Events)    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/EventHive)**                                      |
+| **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity.git)**                           |
+| **Movies API**           | **C#**, .NET 8, SQL Server                      | **[Hive-Movie](https://www.google.com/search?q=https://github.com/Naveen2070/Hive-Movie.git)** |
+| **Notification Engine**  | **Node.js**, NestJS, RabbitMQ                   | _Coming Soon_                                                                                  |
+| **Streaming Engine**     | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                                                  |
 
-> **Note:** The **Core API** and **Identity Service** are the foundation of the **EventHive** ecosystem. They use an industrial-grade **HMAC-SHA256** signature verification process for secure Machine-to-Machine (S2S) communication.
+> **Security Note:** The backend microservices form a Zero-Trust network. They communicate via an industrial-grade **HMAC-SHA256** signature verification process for secure Service-to-Service (S2S) API calls, bypassing the need for JWTs internally.
 
 ---
 
@@ -55,7 +51,7 @@ Since this project uses **Git Submodules**, a standard clone will not work. Foll
 You must use the `--recurse-submodules` flag to pull the code for the backend and frontend simultaneously.
 
 ```bash
-git clone --recurse-submodules [https://github.com/Naveen2070/The-Hive-Project.git](https://github.com/Naveen2070/The-Hive-Project.git)
+git clone --recurse-submodules https://github.com/Naveen2070/The-Hive-Project.git
 cd The-Hive-Project
 ```
 
@@ -66,9 +62,9 @@ _Already cloned without the flag? Run `git submodule update --init --recursive` 
 Create a `.env` file in the root directory. This configures the databases, security layers, and message brokers across all containers:
 
 ```ini
-# Database (Shared credentials for independent DBs)
+# Database (Shared credentials for independent DBs: Postgres & SQL Server)
 DB_USERNAME=admin
-DB_PASSWORD=password
+DB_PASSWORD=SuperSecretPassword123!
 
 # JWT Security
 JWT_SECRET=replace_this_with_a_very_long_secure_secret_key
@@ -78,17 +74,8 @@ JWT_EXPIRATION_MS=86400000
 INTERNAL_SHARED_SECRET=replace_this_with_a_secure_s2s_key
 
 # RabbitMQ Broker
-RABBITMQ_HOST=hive-rabbitmq
-RABBITMQ_PORT=5672
-RABBITMQ_USERNAME=guest
-RABBITMQ_PASSWORD=guest
-RABBITMQ_VHOST=/
-
-# Email (Optional for Local - Used by Identity Service)
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=587
-MAIL_USERNAME=guest
-MAIL_PASSWORD=guest
+RABBITMQ_USERNAME=publisher
+RABBITMQ_PASSWORD=pub@2020
 ```
 
 ### 3. Ignite the Hive 🚀
@@ -104,7 +91,8 @@ Access the services:
 - **Frontend UI:** `http://localhost` (Proxied via Nginx on Port 80)
 - **Core API (Events):** `http://localhost/api/events`
 - **Identity API (Auth):** `http://localhost/api/auth`
-- **RabbitMQ Dashboard:** `http://localhost:15672` (Login: guest/guest)
+- **Movies API:** `http://localhost/api/movies`
+- **RabbitMQ Dashboard:** `http://localhost:15672` (Login: publisher/pub@2020)
 
 ---
 
@@ -116,7 +104,6 @@ This project is evolving from a Monolith into a Distributed System using the **S
 
 - [x] **Event Management:** CRUD operations for Events and Ticket Tiers.
 - [x] **Monolithic Auth:** JWT Authentication and RBAC implementation.
-- [x] **Booking Engine:** Concurrency-safe inventory management (Optimistic Locking).
 - [x] **Frontend:** Responsive React UI with Dashboard and Wallet.
 - [x] **Infrastructure:** Nginx Gateway and Docker Compose orchestration.
 
@@ -125,25 +112,29 @@ This project is evolving from a Monolith into a Distributed System using the **S
 - [x] **Decomposition:** Extract Authentication & User Management from `Hive-Event`.
 - [x] **Standalone IAM:** Build a dedicated Spring Boot Identity Service (`Hive-Identity`).
 - [x] **Zero-Trust Networking:** Implement timestamped HMAC-SHA256 signatures for S2S communication.
-- [x] **Event-Driven Upgrades:** Offload email notifications to RabbitMQ.
 
-### 🚧 Phase 3: The .NET Expansion (Current Focus)
+### 🚧 Phase 3: The .NET Expansion (Backend Completed, UI Active)
 
-- [ ] **Microservice Setup:** Initialize .NET 8 Web API project.
-- [ ] **Movie Domain:** Schema design for Movies, Cinemas, and Showtimes.
-- [ ] **Seat Selection:** High-performance seat mapping engine using C# structs.
-- [ ] **Integration:** Connect .NET service to the Identity ecosystem.
+- [x] **Microservice Setup:** .NET 8 Web API with SQL Server and Testcontainers.
+- [x] **Seat Engine:** High-performance seat locking via Optimistic Concurrency (RowVersion).
+- [x] **Reliability:** Implemented Transactional Outbox Pattern to guarantee RabbitMQ delivery.
+- [x] **Webhooks:** Idempotent Stripe/Razorpay payment confirmation endpoints.
+- [ ] **Frontend Integration:** Build interactive CSS Grid seat maps in the React Portal.
+- [ ] **Checkout:** Integrate Stripe/Razorpay elements into the React UI.
 
-### 🔌 Phase 4: Service Mesh & Discovery
+### 🔌 Phase 4: Notifications & Admin Control Center (Next)
+
+- [ ] **Notification Engine:** Spin up a NestJS worker to consume RabbitMQ queues and dispatch emails/WebSockets.
+- [ ] **Admin UI:** Initialize an Angular + RxJS dashboard for super-admins to monitor the Hive ecosystem.
+
+### 🕸️ Phase 5: Service Mesh & Discovery
 
 - [ ] **Service Registry:** Implement Service Discovery (e.g., Consul or K8s DNS).
-- [ ] **Resilience:** Add Circuit Breakers and Retry policies across services.
-- [ ] **Tracing:** Implement Distributed Tracing (Zipkin/Jaeger).
+- [ ] **Tracing:** Implement Distributed Tracing (Zipkin/Jaeger/OpenTelemetry).
 
-### 📺 Phase 5: Streaming & Real-Time
+### 📺 Phase 6: Streaming
 
 - [ ] **Streaming Service:** NestJS wrapper for video delivery.
-- [ ] **Live Analytics:** Real-time dashboard for organizers using WebSockets.
 
 ---
 
@@ -156,7 +147,7 @@ This is a personal playground for experimenting (and breaking things!). 🧪
 
 **For my future self (and curious minds), here is the "Submodule Dance" to update the code:**
 
-1. **📍 Navigate:** Go into the specific service folder first (e.g., `cd services/core-api`).
+1. **📍 Navigate:** Go into the specific service folder first (e.g., `cd services/hive-movie`).
 2. **🌿 Checkout:** Make sure I'm on the main branch (`git checkout main`).
 3. **💾 Code & Push:** Commit changes _inside_ that folder and push to its specific repository.
 4. **🔗 Sync the Hub:** Come back to this root folder, run `git add services/...` and `git commit` to update the submodule pointer.
