@@ -89,6 +89,38 @@ services:
       - hive-network
 
   # ------------------------------------------------------------
+  # 5. Movie Service (.NET 8)
+  # ------------------------------------------------------------
+  movie-service:
+    build:
+      context: ./services/movie-service # Adjust path to your .NET folder
+      dockerfile: Dockerfile
+    container_name: hive-movie-service
+    expose:
+      - "8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # Double underscores map to JSON hierarchies in .NET
+      - ConnectionStrings__DefaultConnection=Server=movie-db;Database=HiveMovieDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
+      - Jwt__Secret=${JWT_SECRET}
+      - InternalProperties__SharedSecret=${INTERNAL_SHARED_SECRET}
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=${RABBITMQ_USERNAME}
+      - RabbitMQ__Password=${RABBITMQ_PASSWORD}
+      - RabbitMQ__VirtualHost=/
+      - IdentityService__Url=http://identity-service:8081
+    depends_on:
+      movie-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+    networks:
+      - hive-network
+
+  # ------------------------------------------------------------
   # Databases
   # ------------------------------------------------------------
   core-db:
@@ -122,6 +154,19 @@ services:
       retries: 5
     networks:
       - hive-network
+  # ------------------------------------------------------------
+  # SQL Server for Movie Service
+  # ------------------------------------------------------------
+  movie-db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    container_name: hive-movie-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - hive-network
 
   # ------------------------------------------------------------
   # Message Broker (RabbitMQ)
@@ -150,3 +195,4 @@ networks:
 volumes:
   postgres_data:
   identity_postgres_data:
+  sqlserver_data:
