@@ -25,11 +25,11 @@ This repository acts as the **Central Hub**, orchestrating the following indepen
 
 | Service Domain           | Tech Stack                                      | Repository & Docs                                                    |
 | ------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
-| **Consumer Portal**      | **React**, TypeScript, Tailwind, TanStack Query | **[EventHive-UI](https://github.com/Naveen2070/EventHive-UI)**       |
+| **Consumer Portal**      | **React**, TypeScript, Tailwind, TanStack Query | **[Hive-Forager-UI](https://github.com/Naveen2070/Hive-Forager-UI)** |
 | **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | _Coming Soon_                                                        |
-| **Core API** (Events)    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/EventHive)**            |
-| **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity.git)** |
-| **Movies API**           | **C#**, .NET 10, SQL Server                     | **[Hive-Movie](https://github.com/Naveen2070/Hive-Movie.git)**       |
+| **Core API** (Events)    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/Hive-Event)**           |
+| **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity)**     |
+| **Movies API**           | **C#**, .NET 10, SQL Server                     | **[Hive-Movie](https://github.com/Naveen2070/Hive-Movie)**           |
 | **Notification Engine**  | **Node.js**, NestJS, RabbitMQ                   | _Coming Soon_                                                        |
 | **Streaming Engine**     | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                        |
 
