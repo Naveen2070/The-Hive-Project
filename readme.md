@@ -2,6 +2,19 @@
 
 > **A Polyglot Microservices Ecosystem for Events, Movies, and Streaming.**
 
+![Architecture](https://img.shields.io/badge/Architecture-Polyglot_Microservices-1f6feb)
+![Gateway](https://img.shields.io/badge/Gateway-Nginx-009639)
+![Messaging](https://img.shields.io/badge/Messaging-RabbitMQ-FF6600)
+![Containerization](https://img.shields.io/badge/Containerization-Docker-2496ED)
+
+![Frontend](https://img.shields.io/badge/Frontend-React_+_Angular-61DAFB)
+![Backend](https://img.shields.io/badge/Backend-SpringBoot_+_.NET_10_+_NestJS-6DB33F)
+![Languages](https://img.shields.io/badge/Languages-Kotlin_|_CSharp_|_TypeScript_|_Node.js-purple)
+
+![Database](https://img.shields.io/badge/Databases-PostgreSQL_|_SQL_Server_|_MongoDB-336791)
+![Security](https://img.shields.io/badge/Security-JWT_+_HMAC_SHA256-red)
+![Status](https://img.shields.io/badge/Status-Actively_Evolving-blueviolet)
+
 **The Hive Project** is an ambitious engineering initiative to build a complete entertainment platform using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the high-concurrency performance of **.NET 10**, the dynamic consumer interfaces of **React**, the complex data-handling of **Angular**, and the event-driven nature of **Node.js**.
 
 ## 🏗️ System Architecture
