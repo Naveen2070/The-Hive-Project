@@ -179,4 +179,4 @@ This is a personal playground for experimenting (and breaking things!). 🧪
 
 ---
 
-**Architected with ❤️ by [Naveen**](https://github.com/Naveen2070)
+**Architected with ❤️ by [Naveen](https://github.com/Naveen2070)**
