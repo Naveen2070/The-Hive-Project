@@ -1,8 +1,33 @@
-# The Hive Project 🐝
+<p align="center">
+  <img src="assets/the-hive-project-logo.png" alt="The Hive Project Logo" width="150"/>
+</p>
 
-> **A Polyglot Microservices Ecosystem for Events, Movies, and Streaming.**
+<h1 align="center">The Hive Project 🐝</h1>
 
-**The Hive Project** is an ambitious engineering initiative to build a complete entertainment platform using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the high-concurrency performance of **.NET 10**, the dynamic consumer interfaces of **React**, the complex data-handling of **Angular**, and the event-driven nature of **Node.js**.
+<p align="center"><em>A Polyglot Microservices Ecosystem for Events, Movies, and Streaming.</em></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Architecture-Polyglot_Microservices-1f6feb" alt="Architecture"/>
+  <img src="https://img.shields.io/badge/Gateway-Nginx-009639" alt="Gateway"/>
+  <img src="https://img.shields.io/badge/Messaging-RabbitMQ-FF6600" alt="Messaging"/>
+  <img src="https://img.shields.io/badge/Containerization-Docker-2496ED" alt="Containerization"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Frontend-React_+_Angular-61DAFB" alt="Frontend"/>
+  <img src="https://img.shields.io/badge/Backend-SpringBoot_+_.NET_10_+_NestJS-6DB33F" alt="Backend"/>
+  <img src="https://img.shields.io/badge/Languages-Kotlin_|_CSharp_|_TypeScript_|_Node.js-purple" alt="Languages"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Database-PostgreSQL_|_SQL_Server_|_MongoDB-336791" alt="Database"/>
+  <img src="https://img.shields.io/badge/Security-JWT_+_HMAC_SHA256-red" alt="Security"/>
+  <img src="https://img.shields.io/badge/Status-Actively_Evolving-blueviolet" alt="Status"/>
+</p>
+
+---
+
+> **The Hive Project** is an ambitious engineering initiative to build a complete entertainment platform using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the high-concurrency performance of **.NET 10**, the dynamic consumer interfaces of **React**, the complex data-handling of **Angular**, and the event-driven nature of **Node.js**.
 
 ## 🏗️ System Architecture
 
