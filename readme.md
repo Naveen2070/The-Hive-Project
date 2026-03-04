@@ -1,6 +1,7 @@
 <p align="center">
   <img src="assets/the-hive-project-logo.png" alt="The Hive Project Logo" width="150"/>
 </p>
+
 <h1 align="center">The Hive Project 🐝</h1>
 
 <p align="center"><em>A Polyglot Microservices Ecosystem for Events, Movies, and Streaming.</em></p>
