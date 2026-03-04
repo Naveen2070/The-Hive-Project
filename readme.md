@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="assets/the-hive-project-logo.png" alt="The Hive Project Logo" width="150"/>
-</p>
 
 <h1 align="center">The Hive Project 🐝</h1>
 
