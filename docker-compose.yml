@@ -1,6 +1,6 @@
 services:
   # ------------------------------------------------------------
-  # 1. API Gateway (Nginx)
+  # 1. API Gateway (Nginx) - THE ONLY PUBLIC ENTRY POINT
   # ------------------------------------------------------------
   gateway:
     image: nginx:alpine3.23-slim
@@ -29,7 +29,7 @@ services:
       - hive-network
 
   # ------------------------------------------------------------
-  # 3. Core API
+  # 3. Core API (Spring Boot)
   # ------------------------------------------------------------
   core-api:
     build:
@@ -48,7 +48,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
-      RABBITMQ_HOST: hive-rabbitmq
+      RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
@@ -59,22 +59,22 @@ services:
       - hive-network
 
   # ------------------------------------------------------------
-  # 4. Identity Service
+  # 4. Identity Service (Spring Boot)
   # ------------------------------------------------------------
   identity-service:
     build:
       context: ./services/identity-service
       dockerfile: Dockerfile
     container_name: hive-identity
-    ports:
-      - "8081:8081"
+    expose:
+      - "8081"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
-      RABBITMQ_HOST: hive-rabbitmq
+      RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
@@ -89,18 +89,17 @@ services:
       - hive-network
 
   # ------------------------------------------------------------
-  # 5. Movie Service (.NET 8)
+  # 5. Movie Service (.NET 10)
   # ------------------------------------------------------------
   movie-service:
     build:
-      context: ./services/movie-service # Adjust path to your .NET folder
+      context: ./services/movie-service
       dockerfile: Dockerfile
     container_name: hive-movie-service
     expose:
       - "8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      # Double underscores map to JSON hierarchies in .NET
       - ConnectionStrings__DefaultConnection=Server=movie-db;Database=HiveMovieDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
       - Jwt__Secret=${JWT_SECRET}
       - InternalProperties__SharedSecret=${INTERNAL_SHARED_SECRET}
@@ -112,7 +111,7 @@ services:
       - IdentityService__Url=http://identity-service:8081
     depends_on:
       movie-db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       identity-service:
@@ -154,17 +153,31 @@ services:
       retries: 5
     networks:
       - hive-network
-  # ------------------------------------------------------------
-  # SQL Server for Movie Service
-  # ------------------------------------------------------------
+
   movie-db:
-    image: mcr.microsoft.com/mssql/server:2025-latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: hive-movie-db
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Developer
     volumes:
       - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/opt/mssql-tools/bin/sqlcmd",
+          "-U",
+          "sa",
+          "-P",
+          "${DB_PASSWORD}",
+          "-Q",
+          "SELECT 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - hive-network
 
@@ -174,9 +187,9 @@ services:
   rabbitmq:
     image: rabbitmq:4.2.3-management-alpine
     container_name: hive-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
