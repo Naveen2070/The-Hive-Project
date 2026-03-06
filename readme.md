@@ -49,13 +49,31 @@
 
 ## Table of Contents
 
-- [System Architecture](#system-architecture)
 - [Service Ecosystem](#service-ecosystem)
+- [System Architecture](#system-architecture)
 - [Quick Start (Local Development)](#quick-start-local-development)
 - [Project Roadmap](#project-roadmap)
 - [Why This Project Exists](#why-this-project-exists)
 - [Developer Workflow](#developer-workflow)
 - [License](#license)
+
+---
+
+## Service Ecosystem
+
+| Service Domain           | Tech Stack                                      | Repository & Docs                                                    |
+| ------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
+| **Consumer Portal**      | **React**, TypeScript, Tailwind, TanStack Query | **[Hive-Forager-UI](https://github.com/Naveen2070/Hive-Forager-UI)** |
+| **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | _Coming Soon_                                                        |
+| **Core API (Events)**    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/Hive-Event)**           |
+| **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity)**     |
+| **Movies API**           | **C#**, .NET 10, SQL Server                     | **[Hive-Movie](https://github.com/Naveen2070/Hive-Movie)**           |
+| **Notification Engine**  | **Node.js**, NestJS, RabbitMQ                   | _Coming Soon_                                                        |
+| **Unified Dashboard**    | **TBD**                                         | _Coming Soon_                                                        |
+| **Digital Wallet**       | **TBD**                                         | _Coming Soon_                                                        |
+| **Streaming Engine**     | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                        |
+
+> **Security Note:** The backend microservices form a Zero-Trust network. They communicate via an industrial-grade **HMAC-SHA256** signature verification process for secure Service-to-Service (S2S) API calls, bypassing the need for JWTs internally.
 
 ---
 
@@ -277,24 +295,6 @@ events --> rabbit
 movies --> rabbit
 rabbit --> notify
 ```
-
----
-
-## Service Ecosystem
-
-| Service Domain           | Tech Stack                                      | Repository & Docs                                                    |
-| ------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
-| **Consumer Portal**      | **React**, TypeScript, Tailwind, TanStack Query | **[Hive-Forager-UI](https://github.com/Naveen2070/Hive-Forager-UI)** |
-| **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | _Coming Soon_                                                        |
-| **Core API (Events)**    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/Hive-Event)**           |
-| **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity)**     |
-| **Movies API**           | **C#**, .NET 10, SQL Server                     | **[Hive-Movie](https://github.com/Naveen2070/Hive-Movie)**           |
-| **Notification Engine**  | **Node.js**, NestJS, RabbitMQ                   | _Coming Soon_                                                        |
-| **Unified Dashboard**    | **TBD**                                         | _Coming Soon_                                                        |
-| **Digital Wallet**       | **TBD**                                         | _Coming Soon_                                                        |
-| **Streaming Engine**     | **Node.js**, NestJS, MongoDB                    | _Coming Soon_                                                        |
-
-> **Security Note:** The backend microservices form a Zero-Trust network. They communicate via an industrial-grade **HMAC-SHA256** signature verification process for secure Service-to-Service (S2S) API calls, bypassing the need for JWTs internally.
 
 ---
 
