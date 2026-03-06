@@ -2,7 +2,7 @@
 <img src="assets/the-hive-project-logo.png" alt="The Hive Project Logo" width="150"/>
 </p>
 
-<h1 align="center">The Hive Project 🐝</h1>
+<h1 align="center">The Hive Project</h1>
 
 <p align="center"><em>A Polyglot Microservices Ecosystem for Events, Movies, and Streaming.</em></p>
 
@@ -47,17 +47,19 @@
 
 > **The Hive Project** is my personal engineering sandbox and ambitious playground. It’s a complete entertainment platform built using a **Polyglot Microservices Architecture**. Instead of relying on a single language, "The Hive" utilizes the best tool for each domain—combining the transactional safety of **Spring Boot**, the high-concurrency performance of **.NET 10**, the dynamic consumer interfaces of **React**, the complex data-handling of **Angular**, and the event-driven nature of **Node.js**.
 
-## 📚 Table of Contents
+## Table of Contents
 
-- [🏗️ System Architecture](#-system-architecture)
-- [📦 Service Ecosystem](#-service-ecosystem)
-- [🚀 Quick Start](#-quick-start-local-development)
-- [🗺️ Project Roadmap](#-project-roadmap)
-- [💡 Why This Project Exists](#-why-this-project-exists)
-- [👨‍💻 Developer Workflow](#-developer-workflow)
-- [📜 License](#-license)
+- [System Architecture](#system-architecture)
+- [Service Ecosystem](#service-ecosystem)
+- [Quick Start (Local Development)](#quick-start-local-development)
+- [Project Roadmap](#project-roadmap)
+- [Why This Project Exists](#why-this-project-exists)
+- [Developer Workflow](#developer-workflow)
+- [License](#license)
 
-## 🏗️ System Architecture
+---
+
+## System Architecture
 
 The ecosystem is orchestrated via **Docker Compose**, with an **Nginx API Gateway** handling routing and **RabbitMQ** powering asynchronous, event-driven communication (utilizing the Transactional Outbox Pattern).
 
@@ -74,15 +76,217 @@ The ecosystem is orchestrated via **Docker Compose**, with an **Nginx API Gatewa
 
 ---
 
-## 📦 Service Ecosystem
+### High-Level Ecosystem
 
-This repository acts as the **Central Hub**, orchestrating the following independent microservices via Git Submodules:
+```mermaid
+flowchart TB
+
+classDef external fill:#f5f5f5,stroke:#9e9e9e,stroke-width:2px,color:#212121
+classDef platform fill:#e3f2fd,stroke:#64b5f6,stroke-width:2px,color:#0d47a1
+
+subgraph USERS ["Users"]
+    user[End User]
+    admin[Platform Admin]
+    organizer[Event Organizer]
+end
+
+subgraph HIVE ["The Hive Project Platform"]
+    frontend["Frontend Applications (React + Angular)"]:::platform
+    gateway["Nginx API Gateway"]:::platform
+end
+
+subgraph EXTERNAL ["External Systems"]
+    payment["Payment Gateway (Stripe / Razorpay)"]:::external
+    email["Email Delivery Provider"]:::external
+end
+
+user --> frontend
+organizer --> frontend
+admin --> frontend
+
+frontend --> gateway
+
+gateway --> payment
+gateway --> email
+```
+
+### Container Architecture
+
+```mermaid
+flowchart TB
+    classDef frontend fill:#e3f2fd,stroke:#90caf9,stroke-width:2px,color:#0d47a1
+    classDef edge fill:#fff3e0,stroke:#ffcc80,stroke-width:2px,color:#e65100
+    classDef core fill:#e8f5e9,stroke:#a5d6a7,stroke-width:2px,color:#1b5e20
+    classDef subsvc fill:#f3e5f5,stroke:#ce93d8,stroke-width:2px,color:#4a148c
+    classDef db fill:#eceff1,stroke:#b0bec5,stroke-width:2px,color:#263238
+    classDef broker fill:#ffebee,stroke:#ef9a9a,stroke-width:2px,color:#b71c1c
+
+    subgraph CLIENT ["Client Zone"]
+      user[User / Browser]
+    end
+
+    subgraph FRONTEND ["Frontend Applications"]
+      react["Hive Forager UI (React + TypeScript)"]:::frontend
+      angular["Admin Control Center (Angular + RxJS)"]:::frontend
+    end
+
+    subgraph EDGE ["Edge Layer"]
+      nginx["Nginx API Gateway - Routing / TLS / Rate Limiting"]:::edge
+    end
+
+    subgraph DOCKER ["Docker Compose Network"]
+      direction TB
+
+      subgraph CORE ["Core Domain Services"]
+        identity["Hive Identity (Spring Boot + Kotlin)"]:::core
+        events["Hive Event Engine (Spring Boot + Kotlin)"]:::core
+        movies["Hive Movie Engine (.NET)"]:::core
+      end
+
+      subgraph EVENTBUS ["Async Event Backbone"]
+        rabbit[(RabbitMQ Broker)]:::broker
+      end
+
+      subgraph SUBSERVICES ["Aggregation & Worker Services"]
+        wallet["Digital Wallet Service"]:::subsvc
+        dashboard["Unified Dashboard Service"]:::subsvc
+        notify["Notification Service (NestJS)"]:::subsvc
+      end
+
+      subgraph DATABASES ["Persistence Layer"]
+        postgres[(PostgreSQL)]:::db
+        sqlserver[(SQL Server)]:::db
+        mongo[(MongoDB)]:::db
+      end
+    end
+
+    user --> react
+    user --> angular
+    react --> nginx
+    angular --> nginx
+    nginx --> identity
+    nginx --> events
+    nginx --> movies
+    nginx --> wallet
+    nginx --> dashboard
+
+    identity -. HMAC_S2S_Auth .-> events
+    identity -. HMAC_S2S_Auth .-> movies
+    identity --> postgres
+    events --> postgres
+    movies --> sqlserver
+    events -- Outbox_Event --> rabbit
+    movies -- Outbox_Event --> rabbit
+    rabbit -- Consume --> notify
+    rabbit -- Consume --> wallet
+    rabbit -- Consume --> dashboard
+    wallet --> postgres
+    wallet --> sqlserver
+    dashboard --> postgres
+    dashboard --> sqlserver
+    notify --> mongo
+    notify -. Email_or_WebSocket_Action .-> user
+```
+
+### Layered Architecture
+
+```mermaid
+flowchart TB
+
+classDef client fill:#e3f2fd,stroke:#90caf9,stroke-width:2px,color:#0d47a1
+classDef presentation fill:#e8f5e9,stroke:#a5d6a7,stroke-width:2px,color:#1b5e20
+classDef gateway fill:#fff3e0,stroke:#ffcc80,stroke-width:2px,color:#e65100
+classDef security fill:#fce4ec,stroke:#f48fb1,stroke-width:2px,color:#c2185b
+classDef services fill:#ede7f6,stroke:#b39ddb,stroke-width:2px,color:#7b1fa2
+classDef infra fill:#eceff1,stroke:#b0bec5,stroke-width:2px,color:#263238
+
+subgraph CLIENT_LAYER ["Client Layer"]
+    user[User Browser]:::client
+end
+
+subgraph PRESENTATION_LAYER ["Presentation Layer"]
+    react[React Consumer Portal]:::presentation
+    angular[Angular Admin Portal]:::presentation
+end
+
+subgraph EDGE_LAYER ["Gateway Layer"]
+    nginx[Nginx API Gateway]:::gateway
+end
+
+subgraph SECURITY_LAYER ["Security Layer"]
+    jwt[JWT Authentication]:::security
+    hmac[HMAC S2S Verification]:::security
+end
+
+subgraph SERVICE_LAYER ["Application Services"]
+    identity[Identity Service]:::services
+    events[Event Service]:::services
+    movies[Movie Service]:::services
+end
+
+subgraph INFRA_LAYER ["Infrastructure"]
+    rabbit[(RabbitMQ)]:::infra
+    postgres[(PostgreSQL)]:::infra
+    sqlserver[(SQL Server)]:::infra
+end
+
+user --> react
+user --> angular
+react --> nginx
+angular --> nginx
+nginx --> jwt
+jwt --> identity
+identity --> events
+identity --> movies
+events --> rabbit
+movies --> rabbit
+identity --> postgres
+events --> postgres
+movies --> sqlserver
+```
+
+### Zero-Trust Security Model
+
+```mermaid
+flowchart LR
+
+classDef client fill:#e3f2fd,stroke:#90caf9,stroke-width:2px,color:#0d47a1
+classDef gateway fill:#fff3e0,stroke:#ffcc80,stroke-width:2px,color:#e65100
+classDef service fill:#e8f5e9,stroke:#a5d6a7,stroke-width:2px,color:#1b5e20
+classDef broker fill:#ffebee,stroke:#ef9a9a,stroke-width:2px,color:#b71c1c
+
+user[User]:::client
+frontend[React / Angular Frontend]:::client
+gateway[Nginx API Gateway]:::gateway
+identity[Identity Service]:::service
+events[Event Service]:::service
+movies[Movie Service]:::service
+rabbit[(RabbitMQ Event Bus)]:::broker
+notify[Notification Worker]:::service
+
+user --> frontend
+frontend --> gateway
+gateway -->|Login Request| identity
+identity -->|JWT Token Issued| frontend
+frontend -->|JWT Authorization Header| gateway
+gateway --> events
+gateway --> movies
+events -. HMAC Signature .-> identity
+movies -. HMAC Signature .-> identity
+events --> rabbit
+movies --> rabbit
+rabbit --> notify
+```
+
+---
+
+## Service Ecosystem
 
 | Service Domain           | Tech Stack                                      | Repository & Docs                                                    |
 | ------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
 | **Consumer Portal**      | **React**, TypeScript, Tailwind, TanStack Query | **[Hive-Forager-UI](https://github.com/Naveen2070/Hive-Forager-UI)** |
 | **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | _Coming Soon_                                                        |
-| **Core API** (Events)    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/Hive-Event)**           |
+| **Core API (Events)**    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/Hive-Event)**           |
 | **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity)**     |
 | **Movies API**           | **C#**, .NET 10, SQL Server                     | **[Hive-Movie](https://github.com/Naveen2070/Hive-Movie)**           |
 | **Notification Engine**  | **Node.js**, NestJS, RabbitMQ                   | _Coming Soon_                                                        |
@@ -94,7 +298,7 @@ This repository acts as the **Central Hub**, orchestrating the following indepen
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## Quick Start (Local Development)
 
 Since this project uses **Git Submodules**, a standard clone will not work. Follow these steps to spin up the entire ecosystem.
 
@@ -147,7 +351,7 @@ Access the services:
 
 ---
 
-## 🗺️ Project Roadmap
+## Project Roadmap
 
 The Hive Project isn't just a static codebase; it's a living experiment in system design. I am actively evolving this from a Monolith into a Distributed System using the **Strangler Fig Pattern**. Here is the journey so far and where we are heading next:
 
@@ -200,7 +404,7 @@ The Hive Project isn't just a static codebase; it's a living experiment in syste
 
 ---
 
-## 💡 Why This Project Exists
+## Why This Project Exists
 
 The Hive Project exists as a playground for experimenting with modern distributed system design.
 
@@ -214,7 +418,7 @@ It explores:
 
 ---
 
-## 👨‍💻 Developer Workflow
+## Developer Workflow
 
 Hey there! 👋 Thanks for checking out the code.
 
@@ -231,7 +435,7 @@ That's it! You're all set to experiment with the code.
 
 ---
 
-## 📜 License
+## License
 
 This project is licensed under the **[MIT License](https://github.com/Naveen2070/The-Hive-Project/blob/main/LICENSE)**.
 Feel free to fork, experiment, and learn from it.
@@ -240,11 +444,9 @@ Feel free to fork, experiment, and learn from it.
 
 <p align="center">
 Built with ❤️, ☕, curiosity, and a lot of debugging.<br>
-Occasionally powered by existential debugging and distributed system experiments. 🧪<br><br>
+Occasionally powered by existential debugging and distributed system experiments. 🧪<br>
 ⭐ If you enjoy this project, consider starring the repo.<br>
 <b>Architected and maintained with ❤️ by
 <a href="https://github.com/Naveen2070">Naveen</a></b>
 
 </p>
-
----
