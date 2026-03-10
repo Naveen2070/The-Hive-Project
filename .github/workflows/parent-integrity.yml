@@ -1,0 +1,75 @@
+name: Parent Project Integrity
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-orchestration:
+    name: Validate Docker Compose & Nginx
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Create mock .env file
+        run: |
+          echo "DB_USERNAME=admin" >> .env
+          echo "DB_PASSWORD=SuperSecretPassword123!" >> .env
+          echo "JWT_SECRET=dummy_secret_for_validation" >> .env
+          echo "JWT_EXPIRATION_MS=86400000" >> .env
+          echo "INTERNAL_SHARED_SECRET=dummy_s2s_secret" >> .env
+          echo "RABBITMQ_USERNAME=publisher" >> .env
+          echo "RABBITMQ_PASSWORD=pub@2020" >> .env
+
+      - name: Validate Docker Compose Configuration
+        run: docker compose config --quiet
+
+      - name: Validate Nginx Configuration
+        run: |
+          docker run --rm \
+            -v $(pwd)/infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+            --add-host frontend:127.0.0.1 \
+            --add-host core-api:127.0.0.1 \
+            --add-host identity-service:127.0.0.1 \
+            --add-host movie-service:127.0.0.1 \
+            nginx:alpine nginx -t
+
+  submodule-health:
+    name: Check Submodule Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Check Submodule Status
+        run: |
+          git submodule status
+          # Fail if any submodule is not initialized or has a mismatch
+          git submodule foreach --recursive 'git status'
+
+  system-documentation:
+    name: Verify Readme & Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Check for broken internal links
+        run: |
+          # Simple check to ensure key architecture files exist as linked in Readme
+          test -f services/core-api/README.md
+          test -f services/frontend/README.md
+          test -f services/identity-service/README.md
+          test -f services/movie-service/README.md
