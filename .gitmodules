@@ -14,3 +14,6 @@
 	path = services/movie-service
 	url = https://github.com/Naveen2070/Hive-Movie.git
 	branch = develop
+[submodule "services/admin-ui"]
+	path = services/admin-ui
+	url = https://github.com/Naveen2070/Hive-Keeper-UI.git
