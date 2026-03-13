@@ -13,6 +13,7 @@ services:
       - core-api
       - identity-service
       - frontend
+      - movie-service
     networks:
       - hive-network
 
@@ -167,17 +168,19 @@ services:
       test:
         [
           "CMD",
-          "/opt/mssql-tools/bin/sqlcmd",
+          "/opt/mssql-tools18/bin/sqlcmd",
           "-U",
           "sa",
           "-P",
           "${DB_PASSWORD}",
           "-Q",
           "SELECT 1",
+          "-C",
         ]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     networks:
       - hive-network
 
