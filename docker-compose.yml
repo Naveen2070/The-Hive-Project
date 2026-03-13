@@ -14,6 +14,7 @@ services:
       - identity-service
       - frontend
       - movie-service
+      - hive-admin-ui
     networks:
       - hive-network
 
@@ -30,7 +31,19 @@ services:
       - hive-network
 
   # ------------------------------------------------------------
-  # 3. Core API (Spring Boot)
+  # 3. Admin UI (Angular)
+  # ------------------------------------------------------------
+  hive-admin-ui:
+    build:
+      context: ./services/admin-ui
+      dockerfile: Dockerfile
+    container_name: hive-admin-ui
+    restart: unless-stopped
+    networks:
+      - hive-network
+
+  # ------------------------------------------------------------
+  # 4. Core API (Spring Boot)
   # ------------------------------------------------------------
   core-api:
     build:
@@ -60,7 +73,7 @@ services:
       - hive-network
 
   # ------------------------------------------------------------
-  # 4. Identity Service (Spring Boot)
+  # 5. Identity Service (Spring Boot)
   # ------------------------------------------------------------
   identity-service:
     build:
@@ -90,7 +103,7 @@ services:
       - hive-network
 
   # ------------------------------------------------------------
-  # 5. Movie Service (.NET 10)
+  # 6. Movie Service (.NET 10)
   # ------------------------------------------------------------
   movie-service:
     build:
