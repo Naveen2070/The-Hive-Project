@@ -17,3 +17,4 @@
 [submodule "services/admin-ui"]
 	path = services/admin-ui
 	url = https://github.com/Naveen2070/Hive-Keeper-UI.git
+	branch = develop
