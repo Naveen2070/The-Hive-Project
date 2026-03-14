@@ -9,6 +9,7 @@ services:
       - "80:80"
     volumes:
       - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - gateway_cache:/var/cache/nginx
     depends_on:
       - core-api
       - identity-service
@@ -225,3 +226,4 @@ volumes:
   postgres_data:
   identity_postgres_data:
   sqlserver_data:
+  gateway_cache:
