@@ -64,7 +64,7 @@
 | Service Domain           | Tech Stack                                      | Repository & Docs                                                    |
 | ------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
 | **Consumer Portal**      | **React**, TypeScript, Tailwind, TanStack Query | **[Hive-Forager-UI](https://github.com/Naveen2070/Hive-Forager-UI)** |
-| **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | _Coming Soon_                                                        |
+| **Admin Control Center** | **Angular**, TypeScript, RxJS, Material         | **[Hive-Keeper](https://github.com/Naveen2070/Hive-Keeper-UI)**      |
 | **Core API (Events)**    | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Event](https://github.com/Naveen2070/Hive-Event)**           |
 | **Identity Service**     | **Kotlin**, Spring Boot 3, PostgreSQL           | **[Hive-Identity](https://github.com/Naveen2070/Hive-Identity)**     |
 | **Movies API**           | **C#**, .NET 10, SQL Server                     | **[Hive-Movie](https://github.com/Naveen2070/Hive-Movie)**           |
@@ -86,7 +86,7 @@ The ecosystem is orchestrated via **Docker Compose**, with an **Nginx API Gatewa
 - **Events Engine:** Spring Boot 3 / Kotlin (Core API)
 - **Movies Engine:** .NET 10 / C# (High-Concurrency Seat Locking & Ticketing)
 - **Consumer Portal:** React (Vite + TypeScript)
-- **Admin Control Center (Planned):** Angular (TypeScript)
+- **Admin Control Center:** Angular (TypeScript)
 - **Notification Engine (Planned):** NestJS (Node.js)
 - **Unified Dashboard Service (Planned):** Tech Stack TBD
 - **Digital Wallet Service (Planned):** Tech Stack TBD
@@ -376,16 +376,16 @@ The Hive Project isn't just a static codebase; it's a living experiment in syste
 - [x] **Webhooks:** Idempotent Stripe/Razorpay payment confirmation endpoints.
 - [x] **Frontend Integration:** Full React UI integration for movie catalog and seating topologies.
 
-### 🚧 Phase 4: Stabilization & Polish (Current Focus)
+### ✅ Phase 4: Stabilization & Polish (Completed)
 
-- [ ] **System Hardening:** Cleaning up the codebase and ensuring all glued-together microservices communicate flawlessly in the Docker environment.
-- [ ] **Cross-Service Consistency:** Refining Nginx routing, standardizing polyglot pagination wrappers, and handling edge-case errors across the network boundary.
+- [x] **System Hardening:** Cleaning up the codebase and ensuring all glued-together microservices communicate flawlessly in the Docker environment.
+- [x] **Cross-Service Consistency:** Refining Nginx routing, standardizing polyglot pagination wrappers, and handling edge-case errors across the network boundary.
 
-### 🔌 Phase 5: Angular Admin Portal (Next)
+### ✅ Phase 5: Angular Admin Portal (Completed)
 
-- [ ] **Admin UI:** Initialize an Angular + RxJS dashboard for super-admins to monitor the Hive ecosystem, approve venues, and manage users.
+- [x] **Admin UI:** Initialize an Angular + RxJS dashboard for super-admins to monitor the Hive ecosystem, approve venues, and manage users.
 
-### 🔔 Phase 6: Notification Engine (Future)
+### 🚧 Phase 6: Notification Engine (Current Focus)
 
 - [ ] **Notification Service:** Spin up a worker (NestJS/Node) to consume RabbitMQ queues and dispatch real-time emails and WebSockets to users.
 
