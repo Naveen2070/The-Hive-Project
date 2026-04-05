@@ -18,3 +18,7 @@
 	path = services/admin-ui
 	url = https://github.com/Naveen2070/Hive-Keeper-UI.git
 	branch = develop
+[submodule "services/notification-service"]
+	path = services/notification-service
+	url = https://github.com/Naveen2070/Hive-Notification-Engine.git
+	branch = main
